@@ -173,7 +173,7 @@ else:
             data=user_point,
             get_position=["Longitude", "Latitude"],
             get_color=[220, 50, 50, 240],
-            get_radius=300,
+            get_radius=100,
             pickable=True, auto_highlight=True,
         )
 
@@ -185,7 +185,7 @@ else:
             data=nearest,
             get_position=["Longitude", "Latitude"],
             get_color="color",
-            get_radius=200,
+            get_radius=50,
             pickable=True, auto_highlight=True,
         )
 
