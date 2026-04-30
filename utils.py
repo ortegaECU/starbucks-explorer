@@ -164,6 +164,10 @@ def apply_sidebar_style():
             background: linear-gradient(180deg, {BACKGROUND_DARK} 0%, #142b20 100%);
             border-right: 2px solid {STARBUCKS_GREEN};
         }}
+        /* Remove top gap in sidebar content */
+        [data-testid="stSidebar"] > div:first-child {{
+            padding-top: 1rem !important;
+        }}
         /* Sidebar labels and text */
         [data-testid="stSidebar"] label,
         [data-testid="stSidebar"] .stMarkdown,
