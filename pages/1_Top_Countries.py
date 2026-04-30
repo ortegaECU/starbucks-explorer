@@ -1,8 +1,9 @@
 """
-1_Top_Paises.py
+1_Top_Countries.py
 ---------------
 Page 1: Which countries have the most Starbucks locations?
 User can adjust the Top N slider to compare different numbers of countries.
+Controls moved to main page body so they're always visible.
 """
 
 import streamlit as st
@@ -19,34 +20,39 @@ apply_sidebar_style()   # #[FUNCCALL2]
 # -- Load data -----------------------------------------------------------------
 df = load_data()        # #[FUNCCALL2]
 
-# -- Sidebar widgets -----------------------------------------------------------
-with st.sidebar:
-    st.title("🌍 Top Countries")
-    st.markdown("---")
+# -- Page header ---------------------------------------------------------------
+st.markdown("# 🌍 Top Countries by Number of Starbucks")
+st.markdown("Adjust the controls below to explore how countries compare.")
 
+st.markdown("---")
+
+# ── Controls in main page (moved from sidebar) ────────────────────────────────
+ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 3, 1])
+
+with ctrl_col1:
     # #[ST2] - slider widget
     top_n = st.slider(
         "How many countries to show?",
-        min_value = 5,
-        max_value = 30,
-        value     = 10,
-        step      = 1,
+        min_value=5,
+        max_value=30,
+        value=10,
+        step=1,
     )
 
-    st.markdown("---")
-
+with ctrl_col2:
     # #[ST1] - multiselect to highlight specific countries
     all_countries = df["Country"].value_counts().head(30).index.tolist()
     highlight = st.multiselect(
         "Highlight specific countries:",
-        options = all_countries,
-        default = ["US", "CN", "CA"],
+        options=all_countries,
+        default=["US", "CN", "CA"],
     )
 
-    st.markdown("---")
-
+with ctrl_col3:
     # #[ST3] - toggle to show/hide the world map
     show_map = st.toggle("Show world map", value=True)
+
+st.markdown("---")
 
 # -- Data processing -----------------------------------------------------------
 
@@ -71,30 +77,23 @@ top_df["Highlighted"] = top_df["Country"].apply(
 max_country = top_df.iloc[0]
 min_country = top_df.iloc[-1]
 
-# -- Page header ---------------------------------------------------------------
-st.markdown(f"# 🌍 Top {top_n} Countries by Number of Starbucks")
-st.markdown(
-    f"The **{top_n} countries** with the most Starbucks locations. "
-    f"Use the sidebar slider to adjust how many countries to compare."
-)
-
 # -- Stat callouts -------------------------------------------------------------
 col1, col2, col3 = st.columns(3)
 
 col1.metric(
-    label = "🥇 Largest Market",
-    value = max_country["Country"],
-    delta = f"{max_country['Number of Stores']:,} stores",
+    label="🥇 Largest Market",
+    value=max_country["Country"],
+    delta=f"{max_country['Number of Stores']:,} stores",
 )
 col2.metric(
-    label = f"#{top_n} in Ranking",
-    value = min_country["Country"],
-    delta = f"{min_country['Number of Stores']:,} stores",
+    label=f"#{top_n} in Ranking",
+    value=min_country["Country"],
+    delta=f"{min_country['Number of Stores']:,} stores",
 )
 col3.metric(
-    label = "Total in Selection",
-    value = f"{top_df['Number of Stores'].sum():,}",
-    delta = f"out of {len(df):,} worldwide",
+    label="Total in Selection",
+    value=f"{top_df['Number of Stores'].sum():,}",
+    delta=f"out of {len(df):,} worldwide",
 )
 
 st.markdown("---")
@@ -102,30 +101,30 @@ st.markdown("---")
 # -- Bar chart -----------------------------------------------------------------  #[CHART1]
 fig = px.bar(
     top_df.sort_values("Number of Stores", ascending=True),
-    x           = "Number of Stores",
-    y           = "Country",
-    orientation = "h",
-    color       = "Number of Stores",
-    color_continuous_scale = ["#2d5a27", STARBUCKS_GREEN, "#CBA258"],
-    text        = "Number of Stores",
-    title       = f"Top {top_n} Countries - Starbucks Store Count",
+    x="Number of Stores",
+    y="Country",
+    orientation="h",
+    color="Number of Stores",
+    color_continuous_scale=["#2d5a27", STARBUCKS_GREEN, "#CBA258"],
+    text="Number of Stores",
+    title=f"Top {top_n} Countries - Starbucks Store Count",
 )
 
 fig.update_traces(
-    texttemplate = "%{text:,}",
-    textposition = "outside",
+    texttemplate="%{text:,}",
+    textposition="outside",
 )
 
 fig.update_layout(
-    plot_bgcolor        = "rgba(0,0,0,0)",
-    paper_bgcolor       = "rgba(0,0,0,0)",
-    font_color          = "#333333",
-    title_font_size     = 18,
-    coloraxis_showscale = False,
-    xaxis_title         = "Number of Stores",
-    yaxis_title         = "",
-    height              = max(400, top_n * 38),
-    margin              = dict(l=10, r=80, t=50, b=30),
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    font_color="#333333",
+    title_font_size=18,
+    coloraxis_showscale=False,
+    xaxis_title="Number of Stores",
+    yaxis_title="",
+    height=max(400, top_n * 38),
+    margin=dict(l=10, r=80, t=50, b=30),
 )
 
 st.plotly_chart(fig, use_container_width=True)
@@ -146,19 +145,19 @@ donut_df = pd.concat([
 
 fig2 = px.pie(
     donut_df,
-    names  = "Country",
-    values = "Number of Stores",
-    hole   = 0.45,
-    title  = f"Global Store Share - Top {top_n} vs Rest of World",
-    color_discrete_sequence = px.colors.sequential.Greens_r + ["#cccccc"],
+    names="Country",
+    values="Number of Stores",
+    hole=0.45,
+    title=f"Global Store Share - Top {top_n} vs Rest of World",
+    color_discrete_sequence=px.colors.sequential.Greens_r + ["#cccccc"],
 )
 fig2.update_traces(textinfo="percent+label")
 fig2.update_layout(
-    plot_bgcolor    = "rgba(0,0,0,0)",
-    paper_bgcolor   = "rgba(0,0,0,0)",
-    title_font_size = 16,
-    showlegend      = False,
-    height          = 450,
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    title_font_size=16,
+    showlegend=False,
+    height=450,
 )
 st.plotly_chart(fig2, use_container_width=True)
 
@@ -170,7 +169,6 @@ if show_map:
         "Hover over any country to see the exact count."
     )
 
-    # Plotly needs 3-letter ISO codes (USA) but our dataset uses 2-letter (US)
     def to_alpha3(code):
         try:
             return pycountry.countries.get(alpha_2=code).alpha_3
@@ -183,27 +181,27 @@ if show_map:
 
     fig3 = px.choropleth(
         map_df,
-        locations              = "iso_alpha3",
-        color                  = "Number of Stores",
-        hover_name             = "Country",
-        hover_data             = {"Number of Stores": True, "iso_alpha3": False},
-        color_continuous_scale = ["#e8f5e9", "#66bb6a", STARBUCKS_GREEN, BACKGROUND_DARK],
-        title                  = "Starbucks Locations by Country",
+        locations="iso_alpha3",
+        color="Number of Stores",
+        hover_name="Country",
+        hover_data={"Number of Stores": True, "iso_alpha3": False},
+        color_continuous_scale=["#e8f5e9", "#66bb6a", STARBUCKS_GREEN, BACKGROUND_DARK],
+        title="Starbucks Locations by Country",
     )
 
     fig3.update_layout(
-        plot_bgcolor        = "rgba(0,0,0,0)",
-        paper_bgcolor       = "rgba(0,0,0,0)",
-        title_font_size     = 16,
-        geo_bgcolor         = "rgba(0,0,0,0)",
-        geo_showframe       = False,
-        geo_showcoastlines  = True,
-        geo_coastlinecolor  = "#aaaaaa",
-        geo_landcolor       = "#f0f0f0",
+        plot_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="rgba(0,0,0,0)",
+        title_font_size=16,
+        geo_bgcolor="rgba(0,0,0,0)",
+        geo_showframe=False,
+        geo_showcoastlines=True,
+        geo_coastlinecolor="#aaaaaa",
+        geo_landcolor="#f0f0f0",
         geo_projection_type="natural earth",
-        coloraxis_colorbar  = dict(title="Stores"),
-        height              = 480,
-        margin              = dict(l=0, r=0, t=40, b=0),
+        coloraxis_colorbar=dict(title="Stores"),
+        height=480,
+        margin=dict(l=0, r=0, t=40, b=0),
     )
 
     st.plotly_chart(fig3, use_container_width=True)

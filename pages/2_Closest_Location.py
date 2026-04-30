@@ -1,9 +1,10 @@
 """
-3_Nearest_Location.py  (repurposed as: Find Nearest Starbucks)
+2_Closest_Location.py
 --------------------------------------------------------
-Page 3: Where is the nearest Starbucks to me?
+Page 2: Where is the nearest Starbucks to me?
 User types any address or city and the app finds the closest stores
 using the Haversine formula, then plots them on an interactive map.
+Controls moved to main page body so they're always visible.
 """
 
 import streamlit as st
@@ -37,7 +38,7 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     -------
     float - distance in kilometers
     """
-    R = 6371  # Earth radius in km
+    R = 6371
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     dphi = math.radians(lat2 - lat1)
     dlambda = math.radians(lon2 - lon1)
@@ -60,57 +61,58 @@ def geocode_address(address: str) -> tuple:
     """
     try:
         geolocator = Nominatim(user_agent="starbucks_explorer")
-        location   = geolocator.geocode(address, timeout=10)
+        location = geolocator.geocode(address, timeout=10)
         if location:
             return location.latitude, location.longitude
         return None, None
     except GeocoderTimedOut:
         return None, None
 
-# -- Sidebar -------------------------------------------------------------------
-with st.sidebar:
-    st.title("📍 Find Nearest Starbucks")
-    st.markdown("---")
-
-    # #[ST1] - text input for address
-    user_address = st.text_input(
-        "Enter your address or city:",
-        placeholder = "e.g. Boston, MA  or  1 Apple Park, Cupertino",
-    )
-
-    # #[ST2] - slider for how many results to show
-    top_k = st.slider(
-        "How many nearest stores to show?",
-        min_value = 1,
-        max_value = 5,
-        value     = 2,
-    )
-
-    # #[ST3] - radio to filter by ownership type
-    ownership_filter = st.radio(
-        "Filter by ownership type:",
-        options = ["All", "Company Owned", "Licensed", "Joint Venture", "Franchise"],
-        index   = 0,
-    )
-
-    search_btn = st.button("🔍 Find Nearest Starbucks", use_container_width=True)
-
-    st.markdown("---")
-    st.caption("Location data via OpenStreetMap / Nominatim")
-
 # -- Page header ---------------------------------------------------------------
 st.markdown("# 📍 Find Your Nearest Starbucks")
 st.markdown(
-    "Type any address, city, or landmark in the sidebar and we'll find "
+    "Enter an address, city, or landmark below and we'll find "
     "the closest Starbucks locations using straight-line distance."
 )
 
+st.markdown("---")
+
+# ── Controls in main page (moved from sidebar) ────────────────────────────────
+ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([3, 1, 2])
+
+with ctrl_col1:
+    # #[ST1] - text input for address
+    user_address = st.text_input(
+        "Enter your address or city:",
+        placeholder="e.g. Boston, MA  or  1 Apple Park, Cupertino",
+    )
+
+with ctrl_col2:
+    # #[ST2] - slider for how many results to show
+    top_k = st.slider(
+        "Nearest stores to show:",
+        min_value=1,
+        max_value=5,
+        value=2,
+    )
+
+with ctrl_col3:
+    # #[ST3] - radio to filter by ownership type
+    ownership_filter = st.radio(
+        "Filter by ownership type:",
+        options=["All", "Company Owned", "Licensed", "Joint Venture", "Franchise"],
+        index=0,
+        horizontal=True,
+    )
+
+search_btn = st.button("🔍 Find Nearest Starbucks", type="primary", use_container_width=False)
+
+st.markdown("---")
+
 # -- Main logic ----------------------------------------------------------------
 if not user_address or not search_btn:
-    # Show instructions when no search has been made
-    st.info("👈 Enter an address in the sidebar and click **Find Nearest Starbucks** to get started.")
-
     col1, col2 = st.columns(2)
+    col1.info("👆 Enter an address above and click **Find Nearest Starbucks** to get started.")
     col1.markdown("""
     **How it works:**
     1. Type any address or city
@@ -155,70 +157,66 @@ else:
         closest = nearest.iloc[0]   # #[MAXMIN] - the single nearest store
 
         # -- Stat callouts -------------------------------------------------
-        st.markdown("---")
         col1, col2, col3 = st.columns(3)
         col1.metric("Nearest Store", closest["Store Name"])
-        col2.metric("Distance",      f"{closest['Distance (mi)']:.2f} mi  /  {closest['Distance (km)']:.2f} km")
-        col3.metric("City",          f"{closest['City']}, {closest['Country']}")
+        col2.metric("Distance", f"{closest['Distance (mi)']:.2f} mi  /  {closest['Distance (km)']:.2f} km")
+        col3.metric("City", f"{closest['City']}, {closest['Country']}")
 
         st.markdown("---")
         st.markdown(f"### {top_k} Nearest Starbucks to '{user_address}'")
         st.markdown("🔴 Red dot = your location &nbsp;&nbsp; 🟢 Green dots = Starbucks stores")
 
         # -- Build map layers ----------------------------------------------  #[MAP]
-
-        # User location layer (red dot)
         user_point = pd.DataFrame([{
-            "Latitude"  : user_lat,
-            "Longitude" : user_lon,
-            "label"     : "Your Location",
+            "Latitude": user_lat,
+            "Longitude": user_lon,
+            "label": "Your Location",
         }])
 
         user_layer = pdk.Layer(
             "ScatterplotLayer",
-            data           = user_point,
-            get_position   = ["Longitude", "Latitude"],
-            get_color      = [220, 50, 50, 240],
-            get_radius     = 300,
-            pickable       = True,
-            auto_highlight = True,
+            data=user_point,
+            get_position=["Longitude", "Latitude"],
+            get_color=[220, 50, 50, 240],
+            get_radius=300,
+            pickable=True,
+            auto_highlight=True,
         )
 
-        # Add color column to nearest stores                 #[COLUMNS]
         nearest = nearest.copy()
-        nearest["color"] = [[0, 112, 74, 210]] * len(nearest)
+        nearest["color"] = [[0, 112, 74, 210]] * len(nearest)  # #[COLUMNS]
 
         stores_layer = pdk.Layer(
             "ScatterplotLayer",
-            data           = nearest,
-            get_position   = ["Longitude", "Latitude"],
-            get_color      = "color",
-            get_radius     = 200,
-            pickable       = True,
-            auto_highlight = True,
+            data=nearest,
+            get_position=["Longitude", "Latitude"],
+            get_color="color",
+            get_radius=200,
+            pickable=True,
+            auto_highlight=True,
         )
 
         view = pdk.ViewState(
-            latitude  = user_lat,
-            longitude = user_lon,
-            zoom      = 11,
-            pitch     = 0,
+            latitude=user_lat,
+            longitude=user_lon,
+            zoom=11,
+            pitch=0,
         )
 
         deck = pdk.Deck(
-            layers             = [stores_layer, user_layer],
-            initial_view_state = view,
-            tooltip = {
-                "html"  : "<b>{Store Name}</b><br/>{Street Address}<br/>{City} · {Distance (mi)} mi",
-                "style" : {
-                    "backgroundColor" : "#1E3932",
-                    "color"           : "white",
-                    "fontSize"        : "13px",
-                    "padding"         : "8px",
-                    "borderRadius"    : "6px",
+            layers=[stores_layer, user_layer],
+            initial_view_state=view,
+            tooltip={
+                "html": "<b>{Store Name}</b><br/>{Street Address}<br/>{City} · {Distance (mi)} mi",
+                "style": {
+                    "backgroundColor": "#1E3932",
+                    "color": "white",
+                    "fontSize": "13px",
+                    "padding": "8px",
+                    "borderRadius": "6px",
                 }
             },
-            map_style = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+            map_style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
         )
 
         st.pydeck_chart(deck)
@@ -231,3 +229,5 @@ else:
             nearest[display_cols].reset_index(drop=True),
             use_container_width=True
         )
+
+        st.caption("Location data via OpenStreetMap / Nominatim")
