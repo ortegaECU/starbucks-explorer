@@ -97,8 +97,7 @@ def metric_card(col, emoji, value, label):
 metric_card(col1, "🏪", f"{total_stores:,}",    "Total Stores")
 metric_card(col2, "🌍", f"{total_countries}",   "Countries")
 metric_card(col3, "🏙️", f"{total_cities:,}",   "Cities")
-top_country_short = top_country[:12] + "..." if len(top_country) > 12 else top_country
-metric_card(col4, "🥇", top_country_short, f"Biggest Market · {top_country_n:,} stores")
+metric_card(col4, "🥇", f"{top_country_n:,}", f"Biggest Market · {top_country}")
 
 # ── What can you explore section ─────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
