@@ -29,21 +29,22 @@ st.markdown("Select a country and adjust the controls to explore city rankings."
 st.markdown("---")
 
 # ── Controls in main page (moved from sidebar) ────────────────────────────────
-ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4 = st.columns([2, 2, 2, 1])
+ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4, ctrl_col5 = st.columns([2, 1, 2, 2, 1])
 
 with ctrl_col1:
     # #[ST1] - country dropdown
     country_list = get_country_list(df)
+    default_country = "United States" if "United States" in country_list else country_list[0]
     selected_country = st.selectbox(
         "Select a Country:",
         options=country_list,
-        index=country_list.index("US"),
+        index=country_list.index(default_country),
     )
 
 with ctrl_col2:
     # #[ST2] - slider for how many cities to show
     top_n = st.slider(
-        "How many cities to show?",
+        "Cities to show:",
         min_value=5,
         max_value=25,
         value=10,
@@ -51,6 +52,16 @@ with ctrl_col2:
     )
 
 with ctrl_col3:
+    # #[ST1] - ownership type multiselect  #[FILTER2]
+    all_ownership = df["Ownership Type"].dropna().unique().tolist()
+    ownership_filter = st.multiselect(
+        "Filter by ownership type:",
+        options=all_ownership,
+        default=all_ownership,
+        help="Uncheck a type to exclude those stores from the ranking",
+    )
+
+with ctrl_col4:
     # #[ST3] - sort order radio
     sort_order = st.radio(
         "Sort order:",
@@ -58,13 +69,21 @@ with ctrl_col3:
         index=0,
     )
 
-with ctrl_col4:
-    show_table = st.toggle("Show data table", value=False)
+with ctrl_col5:
+    show_table = st.toggle("Show table", value=False)
 
 st.markdown("---")
 
 # -- Filter & process ----------------------------------------------------------
 country_df = filter_by_country(df, selected_country)              # #[FILTER1]
+
+# Filter by ownership type (two conditions: country AND ownership)  #[FILTER2]
+if ownership_filter:
+    country_df = country_df[country_df["Ownership Type"].isin(ownership_filter)]
+
+if country_df.empty:
+    st.warning("No stores match the selected filters. Try selecting at least one ownership type.")
+    st.stop()
 
 # Count stores per city and sort                                   #[SORT]
 city_counts = (
