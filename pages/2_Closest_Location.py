@@ -60,12 +60,14 @@ def geocode_address(address: str) -> tuple:
     lon : float or None
     """
     try:
-        geolocator = Nominatim(user_agent="starbucks_explorer")
+        geolocator = Nominatim(user_agent="starbucks_explorer_cs230")
         location = geolocator.geocode(address, timeout=10)
         if location:
             return location.latitude, location.longitude
         return None, None
     except GeocoderTimedOut:
+        return None, None
+    except Exception:
         return None, None
 
 # -- Page header ---------------------------------------------------------------
