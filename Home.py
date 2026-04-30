@@ -26,6 +26,7 @@ st.set_page_config(
     page_title = "Starbucks Explorer",
     page_icon  = "☕",
     layout     = "wide",
+    initial_sidebar_state = "expanded",   # sidebar open by default
 )
 
 # ── Apply sidebar style ───────────────────────────────────────────────────────
@@ -34,17 +35,8 @@ apply_sidebar_style()   # #[FUNCCALL2] – also called in every other page
 # ── Load data ─────────────────────────────────────────────────────────────────
 df = load_data()        # #[FUNCCALL2]
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("### 📌 Navigate")
-    st.markdown("""
-    Use the **pages menu** above to explore:
-
-    - 🌍 **Top Countries** — which countries have the most stores?
-    - 🗺️ **By State** — explore stores on a map by state/province
-    - 📍 **Nearest Location** — find the closest Starbucks to you
-    - 🏙️ **Top Cities** — which cities have the most Starbucks?
-    """)
+# ── Sidebar — header only, no Navigate text ───────────────────────────────────
+# (apply_sidebar_style already renders the Starbucks Explorer header + stats)
 
 # ── Hero section ──────────────────────────────────────────────────────────────
 st.markdown(
@@ -136,8 +128,6 @@ with c1:
         "Type any address or city and instantly find the closest Starbucks to you on an interactive map with distances.")
 
 with c2:
-    feature_card(c2, "🗺️", "Explore by State",
-        "Pick a country and a state or province to see every Starbucks plotted on an interactive map — with store name and address on hover.")
     feature_card(c2, "🏙️", "Top Cities",
         "Which city in your chosen country has the most Starbucks? See a ranked chart and spotlight the top location.")
 

@@ -176,8 +176,12 @@ def apply_sidebar_style():
         [data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] span {{
             color: #1E3932 !important;
         }}
+        /* Hide Streamlit's native top navigation so our custom links show instead */
+        [data-testid="stSidebarNav"] {{
+            display: none !important;
+        }}
         /* Sidebar navigation links */
-        [data-testid="stSidebarNav"] a {{
+        [data-testid="stSidebar"] a {{
             color: {TEXT_LIGHT} !important;
             padding: 6px 12px;
             border-radius: 6px;
@@ -261,3 +265,9 @@ def apply_sidebar_style():
         """,
         unsafe_allow_html=True,
     )
+
+    # Custom page navigation links below the header
+    st.sidebar.page_link("Home.py",                    label="🏠 Home")
+    st.sidebar.page_link("pages/1_Top_Countries.py",   label="🌍 Top Countries")
+    st.sidebar.page_link("pages/2_Closest_Location.py",label="📍 Closest Location")
+    st.sidebar.page_link("pages/3_Top_Cities.py",      label="🏙️ Top Cities")
