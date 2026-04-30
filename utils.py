@@ -231,10 +231,7 @@ def apply_sidebar_style():
             color: {STARBUCKS_GREEN} !important;
             font-weight: 700;
         }}
-        /* Hide Streamlit default black header */
-        [data-testid="stHeader"] {{
-            display: none !important;
-        }}
+
         </style>
         """,
         unsafe_allow_html=True,
