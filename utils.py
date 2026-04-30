@@ -192,19 +192,19 @@ def apply_sidebar_style():
         }}
         /* Fix page title - override Streamlit purple with green */
         h1, h2, h3, h4 {{
-            color: #ffffff !important;
+            color: {STARBUCKS_GREEN} !important;
         }}
         /* Target Streamlit's internal heading elements */
         div[data-testid="stMarkdownContainer"] h1,
         div[data-testid="stMarkdownContainer"] h2,
         div[data-testid="stMarkdownContainer"] h3 {{
-            color: #ffffff !important;
+            color: {STARBUCKS_GREEN} !important;
         }}
         /* Override the page title at the very top */
         [data-testid="stAppViewBlockContainer"] h1,
         [data-testid="stAppViewBlockContainer"] h2,
         [data-testid="stAppViewBlockContainer"] h3 {{
-            color: #ffffff !important;
+            color: {STARBUCKS_GREEN} !important;
         }}
         /* Metric value styling */
         [data-testid="stMetricValue"] {{
