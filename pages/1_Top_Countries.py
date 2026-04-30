@@ -26,27 +26,15 @@ st.markdown("Adjust the controls below to explore how countries compare.")
 
 st.markdown("---")
 
-# ── Controls in main page (moved from sidebar) ────────────────────────────────
-ctrl_col1, ctrl_col2 = st.columns([2, 3])
-
-with ctrl_col1:
-    # #[ST2] - slider widget
-    top_n = st.slider(
-        "How many countries to show?",
-        min_value=5,
-        max_value=30,
-        value=10,
-        step=1,
-    )
-
-with ctrl_col2:
-    # #[ST1] - multiselect to highlight specific countries
-    all_countries = df["Country"].value_counts().head(30).index.tolist()
-    highlight = st.multiselect(
-        "Highlight specific countries:",
-        options=all_countries,
-        default=["US", "CN", "CA"],
-    )
+# ── Controls in main page ────────────────────────────────────────────────────
+# #[ST2] - slider widget
+top_n = st.slider(
+    "How many countries to show?",
+    min_value=5,
+    max_value=30,
+    value=10,
+    step=1,
+)
 
 st.markdown("---")
 
@@ -63,11 +51,6 @@ country_counts = country_counts.sort_values("Number of Stores", ascending=False)
 
 # Take the top N                                                     #[FILTER1]
 top_df = country_counts.head(top_n).copy()
-
-# Add a column flagging highlighted countries                        #[COLUMNS]
-top_df["Highlighted"] = top_df["Country"].apply(
-    lambda c: "Selected" if c in highlight else "Other"
-)
 
 # Max and min in the current selection                               #[MAXMIN]
 max_country = top_df.iloc[0]
@@ -101,10 +84,10 @@ st.markdown(
     "Hover over any country to see the exact count."
 )
 
-def to_alpha3(code):
+def to_alpha3(name):
     try:
-        return pycountry.countries.get(alpha_2=code).alpha_3
-    except:
+        return pycountry.countries.search_fuzzy(name)[0].alpha_3
+    except Exception:
         return None
 
 map_df = country_counts.copy()

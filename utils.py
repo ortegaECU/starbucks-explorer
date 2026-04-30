@@ -8,6 +8,7 @@ and common operations are never repeated.
 
 import pandas as pd
 import streamlit as st
+import pycountry
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,15 @@ def load_data() -> pd.DataFrame:
 
     # 5. Clean index
     df = df.reset_index(drop=True)
+
+    # 6. Replace 2-letter country codes with full names
+    def code_to_name(code):
+        try:
+            return pycountry.countries.get(alpha_2=code).name
+        except Exception:
+            return code   # fallback: keep original code if not found
+
+    df["Country"] = df["Country"].apply(code_to_name)
 
     return df
 
