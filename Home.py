@@ -72,6 +72,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 def metric_card(col, emoji, value, label):
     """Display a styled metric card. #[FUNC2P] #[FUNCCALL2]"""
+    font_size = "1.2rem" if len(str(value)) > 10 else "1.8rem"
     col.markdown(
         f"""
         <div style="
@@ -87,7 +88,7 @@ def metric_card(col, emoji, value, label):
             align-items: center;
         ">
             <div style="font-size:2rem; margin-bottom:4px;">{emoji}</div>
-            <div style="color:#ffffff; font-size:1.8rem; font-weight:700; line-height:1.2;">{value}</div>
+            <div style="color:#ffffff; font-size:{font_size}; font-weight:700; line-height:1.2;">{value}</div>
             <div style="color:#aaaaaa; font-size:0.85rem; margin-top:4px;">{label}</div>
         </div>
         """,
@@ -97,7 +98,7 @@ def metric_card(col, emoji, value, label):
 metric_card(col1, "🏪", f"{total_stores:,}",    "Total Stores")
 metric_card(col2, "🌍", f"{total_countries}",   "Countries")
 metric_card(col3, "🏙️", f"{total_cities:,}",   "Cities")
-metric_card(col4, "🥇", f"{top_country_n:,}", f"Biggest Market · {top_country}")
+metric_card(col4, "🥇", top_country, f"Biggest Market · {top_country_n:,} stores")
 
 # ── What can you explore section ─────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
