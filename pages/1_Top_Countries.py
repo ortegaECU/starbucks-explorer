@@ -27,7 +27,7 @@ st.markdown("Adjust the controls below to explore how countries compare.")
 st.markdown("---")
 
 # ── Controls in main page (moved from sidebar) ────────────────────────────────
-ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 3, 1])
+ctrl_col1, ctrl_col2 = st.columns([2, 3])
 
 with ctrl_col1:
     # #[ST2] - slider widget
@@ -47,10 +47,6 @@ with ctrl_col2:
         options=all_countries,
         default=["US", "CN", "CA"],
     )
-
-with ctrl_col3:
-    # #[ST3] - toggle to show/hide the world map
-    show_map = st.toggle("Show world map", value=True)
 
 st.markdown("---")
 
@@ -98,7 +94,52 @@ col3.metric(
 
 st.markdown("---")
 
-# -- Bar chart -----------------------------------------------------------------  #[CHART1]
+# -- World choropleth map (shown first) ----------------------------------------  #[MAP]
+st.markdown("### World Map - Store Density")
+st.markdown(
+    "The darker the green, the more Starbucks locations in that country. "
+    "Hover over any country to see the exact count."
+)
+
+def to_alpha3(code):
+    try:
+        return pycountry.countries.get(alpha_2=code).alpha_3
+    except:
+        return None
+
+map_df = country_counts.copy()
+map_df["iso_alpha3"] = map_df["Country"].apply(to_alpha3)
+map_df = map_df.dropna(subset=["iso_alpha3"])
+
+fig3 = px.choropleth(
+    map_df,
+    locations="iso_alpha3",
+    color="Number of Stores",
+    hover_name="Country",
+    hover_data={"Number of Stores": True, "iso_alpha3": False},
+    color_continuous_scale=["#e8f5e9", "#66bb6a", STARBUCKS_GREEN, BACKGROUND_DARK],
+    title="Starbucks Locations by Country",
+)
+
+fig3.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    title_font_size=16,
+    geo_bgcolor="rgba(0,0,0,0)",
+    geo_showframe=False,
+    geo_showcoastlines=True,
+    geo_coastlinecolor="#aaaaaa",
+    geo_landcolor="#f0f0f0",
+    geo_projection_type="natural earth",
+    coloraxis_colorbar=dict(title="Stores"),
+    height=480,
+    margin=dict(l=0, r=0, t=40, b=0),
+)
+
+st.plotly_chart(fig3, use_container_width=True)
+
+# -- Bar chart (shown second) --------------------------------------------------  #[CHART1]
+st.markdown("### Ranking by Number of Stores")
 fig = px.bar(
     top_df.sort_values("Number of Stores", ascending=True),
     x="Number of Stores",
@@ -128,80 +169,3 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig, use_container_width=True)
-
-# -- Donut chart ---------------------------------------------------------------  #[CHART2]
-st.markdown("### Share of Global Stores")
-st.markdown(
-    f"The top {top_n} countries account for "
-    f"**{top_df['Number of Stores'].sum() / len(df) * 100:.1f}%** "
-    f"of all Starbucks worldwide."
-)
-
-others_count = len(df) - top_df["Number of Stores"].sum()
-donut_df = pd.concat([
-    top_df[["Country", "Number of Stores"]],
-    pd.DataFrame([{"Country": "All Others", "Number of Stores": others_count}])
-], ignore_index=True)
-
-fig2 = px.pie(
-    donut_df,
-    names="Country",
-    values="Number of Stores",
-    hole=0.45,
-    title=f"Global Store Share - Top {top_n} vs Rest of World",
-    color_discrete_sequence=px.colors.sequential.Greens_r + ["#cccccc"],
-)
-fig2.update_traces(textinfo="percent+label")
-fig2.update_layout(
-    plot_bgcolor="rgba(0,0,0,0)",
-    paper_bgcolor="rgba(0,0,0,0)",
-    title_font_size=16,
-    showlegend=False,
-    height=450,
-)
-st.plotly_chart(fig2, use_container_width=True)
-
-# -- World choropleth map ------------------------------------------------------  #[MAP]
-if show_map:
-    st.markdown("### World Map - Store Density")
-    st.markdown(
-        "The darker the green, the more Starbucks locations in that country. "
-        "Hover over any country to see the exact count."
-    )
-
-    def to_alpha3(code):
-        try:
-            return pycountry.countries.get(alpha_2=code).alpha_3
-        except:
-            return None
-
-    map_df = country_counts.copy()
-    map_df["iso_alpha3"] = map_df["Country"].apply(to_alpha3)
-    map_df = map_df.dropna(subset=["iso_alpha3"])
-
-    fig3 = px.choropleth(
-        map_df,
-        locations="iso_alpha3",
-        color="Number of Stores",
-        hover_name="Country",
-        hover_data={"Number of Stores": True, "iso_alpha3": False},
-        color_continuous_scale=["#e8f5e9", "#66bb6a", STARBUCKS_GREEN, BACKGROUND_DARK],
-        title="Starbucks Locations by Country",
-    )
-
-    fig3.update_layout(
-        plot_bgcolor="rgba(0,0,0,0)",
-        paper_bgcolor="rgba(0,0,0,0)",
-        title_font_size=16,
-        geo_bgcolor="rgba(0,0,0,0)",
-        geo_showframe=False,
-        geo_showcoastlines=True,
-        geo_coastlinecolor="#aaaaaa",
-        geo_landcolor="#f0f0f0",
-        geo_projection_type="natural earth",
-        coloraxis_colorbar=dict(title="Stores"),
-        height=480,
-        margin=dict(l=0, r=0, t=40, b=0),
-    )
-
-    st.plotly_chart(fig3, use_container_width=True)

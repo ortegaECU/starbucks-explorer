@@ -55,7 +55,7 @@ st.markdown(
         border-radius: 16px;
         margin-bottom: 2rem;
     ">
-        <h1 style="color: #ffffff; font-size: 3rem; margin-bottom: 0.5rem;">
+        <h1 style="color: #d4e9d4 !important; font-size: 3rem; margin-bottom: 0.5rem;">
             ☕ Starbucks Explorer
         </h1>
         <p style="color: #d4e9d4; font-size: 1.2rem; max-width: 650px;">
