@@ -23,10 +23,9 @@ df = load_data()        # #[FUNCCALL2]
 # -- Page header ---------------------------------------------------------------
 st.markdown("# 🌍 Top Countries by Number of Starbucks")
 st.markdown("Adjust the controls below to explore how countries compare.")
-
 st.markdown("---")
 
-# ── Controls in main page ────────────────────────────────────────────────────
+# -- Controls ------------------------------------------------------------------
 # #[ST2] - slider widget
 top_n = st.slider(
     "How many countries to show?",
@@ -35,7 +34,6 @@ top_n = st.slider(
     value=10,
     step=1,
 )
-
 st.markdown("---")
 
 # -- Data processing -----------------------------------------------------------
@@ -77,7 +75,39 @@ col3.metric(
 
 st.markdown("---")
 
-# -- World choropleth map (shown first) ----------------------------------------  #[MAP]
+# -- Bar chart (shown first) ---------------------------------------------------  #[CHART1]
+st.markdown("### Ranking by Number of Stores")
+fig = px.bar(
+    top_df.sort_values("Number of Stores", ascending=True),
+    x="Number of Stores",
+    y="Country",
+    orientation="h",
+    color="Number of Stores",
+    color_continuous_scale=["#2d5a27", STARBUCKS_GREEN, "#CBA258"],
+    text="Number of Stores",
+    title=f"Top {top_n} Countries - Starbucks Store Count",
+)
+
+fig.update_traces(
+    texttemplate="%{text:,}",
+    textposition="outside",
+)
+
+fig.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    font_color="#333333",
+    title_font_size=18,
+    coloraxis_showscale=False,
+    xaxis_title="Number of Stores",
+    yaxis_title="",
+    height=max(400, top_n * 38),
+    margin=dict(l=10, r=80, t=50, b=30),
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# -- World choropleth map (shown second) ---------------------------------------  #[MAP]
 st.markdown("### World Map - Store Density")
 st.markdown(
     "The darker the green, the more Starbucks locations in that country. "
@@ -120,35 +150,3 @@ fig3.update_layout(
 )
 
 st.plotly_chart(fig3, use_container_width=True)
-
-# -- Bar chart (shown second) --------------------------------------------------  #[CHART1]
-st.markdown("### Ranking by Number of Stores")
-fig = px.bar(
-    top_df.sort_values("Number of Stores", ascending=True),
-    x="Number of Stores",
-    y="Country",
-    orientation="h",
-    color="Number of Stores",
-    color_continuous_scale=["#2d5a27", STARBUCKS_GREEN, "#CBA258"],
-    text="Number of Stores",
-    title=f"Top {top_n} Countries - Starbucks Store Count",
-)
-
-fig.update_traces(
-    texttemplate="%{text:,}",
-    textposition="outside",
-)
-
-fig.update_layout(
-    plot_bgcolor="rgba(0,0,0,0)",
-    paper_bgcolor="rgba(0,0,0,0)",
-    font_color="#333333",
-    title_font_size=18,
-    coloraxis_showscale=False,
-    xaxis_title="Number of Stores",
-    yaxis_title="",
-    height=max(400, top_n * 38),
-    margin=dict(l=10, r=80, t=50, b=30),
-)
-
-st.plotly_chart(fig, use_container_width=True)
