@@ -169,30 +169,32 @@ components.html(leaderboard_html, height=top_n * 75, scrolling=False)
 # -- Pie chart (second) --------------------------------------------------------  #[CHART2]
 st.markdown("### Share of Stores by City")
 st.markdown(
-    f"What percentage of all Starbucks in **{selected_country}** belong to each city?"
+    f"Each slice shows what percentage of all Starbucks in **{selected_country}** that city represents."
 )
 
-others_count = len(country_df) - top_cities["Number of Stores"].sum()
-pie_df = pd.concat([
-    top_cities[["City", "Number of Stores"]],
-    pd.DataFrame([{"City": "All Others", "Number of Stores": others_count}])
-], ignore_index=True)
+total_country = len(country_df)
+pie_df = top_cities[["City", "Number of Stores"]].copy()
+pie_df["% of Country"] = (pie_df["Number of Stores"] / total_country * 100).round(2)
 
 fig_pie = px.pie(
     pie_df,
     names="City",
     values="Number of Stores",
-    hole=0.45,
-    title=f"Store Share by City — {selected_country}",
-    color_discrete_sequence=px.colors.sequential.Greens_r + ["#cccccc"],
+    title=f"Top {top_n} Cities — Share of All Stores in {selected_country}",
+    color_discrete_sequence=px.colors.sequential.Greens_r,
+    custom_data=["% of Country"],
 )
-fig_pie.update_traces(textinfo="percent+label")
+fig_pie.update_traces(
+    texttemplate="%{label}<br>%{customdata[0]:.1f}%",
+    textinfo="label+percent",
+    hovertemplate="<b>%{label}</b><br>Stores: %{value:,}<br>Share of %{customdata[0]:.2f}% of country<extra></extra>",
+)
 fig_pie.update_layout(
     plot_bgcolor="rgba(0,0,0,0)",
     paper_bgcolor="rgba(0,0,0,0)",
     title_font_size=16,
     showlegend=False,
-    height=480,
+    height=500,
 )
 st.plotly_chart(fig_pie, use_container_width=True)
 
