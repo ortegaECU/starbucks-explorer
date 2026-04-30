@@ -192,7 +192,7 @@ else:
         deck = pdk.Deck(
             layers=[stores_layer, user_layer],
             initial_view_state=pdk.ViewState(
-                latitude=user_lat, longitude=user_lon, zoom=12, pitch=0
+                latitude=user_lat, longitude=user_lon, zoom=11, pitch=0
             ),
             tooltip={
                 "html": "<b>{Store Name}</b><br/>{Street Address}<br/>{City} · {Distance (mi)} mi",
