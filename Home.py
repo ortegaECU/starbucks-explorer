@@ -8,7 +8,7 @@ Description:
     This program explores the global presence of Starbucks using an
     interactive web application built with Streamlit. Users can discover
     which countries have the most stores, explore locations by state or
-    province, find nearest starbucks, and find the top cities in any
+    province, compare ownership types, and find the top cities in any
     country. The app uses filtering, sorting, charts, and an interactive
     map to tell the story of Starbucks around the world.
 
@@ -108,30 +108,38 @@ st.markdown(f"## What can you explore?")
 
 c1, c2 = st.columns(2)
 
+def feature_card(col, emoji, title, description):
+    col.markdown(
+        f"""
+        <div style="
+            background-color: #f8fdf8;
+            border-left: 4px solid #00704A;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        ">
+            <div style="font-size:1.1rem; font-weight:700; color:#1E3932; margin-bottom:6px;">
+                {emoji} {title}
+            </div>
+            <div style="font-size:0.9rem; color:#444444; line-height:1.5;">
+                {description}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 with c1:
-    st.markdown(f"""
-    #### 🌍 Top Countries
-    Which countries have the most Starbucks locations?
-    Use a slider to adjust how many countries to compare and see an
-    interactive ranking chart.
-    """)
-    st.markdown(f"""
-    #### 📍 Nearest Location
-    Type any address or city and instantly find the closest
-    Starbucks to you on an interactive map with distances.
-    """)
+    feature_card(c1, "🌍", "Top Countries",
+        "Which countries have the most Starbucks locations? Use a slider to adjust how many countries to compare and see an interactive ranking chart.")
+    feature_card(c1, "📍", "Nearest Location",
+        "Type any address or city and instantly find the closest Starbucks to you on an interactive map with distances.")
 
 with c2:
-    st.markdown(f"""
-    #### 🗺️ Explore by State
-    Pick a country and a state or province to see every Starbucks
-    plotted on an interactive map — with store name and address on hover.
-    """)
-    st.markdown(f"""
-    #### 🏙️ Top Cities
-    Which city in your chosen country has the most Starbucks?
-    See a ranked chart and spotlight the top location.
-    """)
+    feature_card(c2, "🗺️", "Explore by State",
+        "Pick a country and a state or province to see every Starbucks plotted on an interactive map — with store name and address on hover.")
+    feature_card(c2, "🏙️", "Top Cities",
+        "Which city in your chosen country has the most Starbucks? See a ranked chart and spotlight the top location.")
 
 st.markdown("---")
 st.caption("CS230 Final Project · Data: Starbucks Store Locations (Kaggle)")
