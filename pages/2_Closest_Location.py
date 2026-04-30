@@ -46,26 +46,15 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 # -- Geocode address -----------------------------------------------------------  #[FUNCRETURN2]
+@st.cache_data(show_spinner=False)
 def geocode_address(address: str) -> tuple:
-    """
-    Convert a text address into latitude and longitude coordinates.
-
-    Parameters
-    ----------
-    address : str - any address, city, or landmark
-
-    Returns
-    -------
-    lat : float or None
-    lon : float or None
-    """
+    import time
     try:
-        geolocator = Nominatim(user_agent="starbucks_explorer_cs230")
-        location = geolocator.geocode(address, timeout=10)
+        time.sleep(1)  # Nominatim requires 1 second between requests
+        geolocator = Nominatim(user_agent="sbux_cs230_enrique")
+        location = geolocator.geocode(address, timeout=15)
         if location:
             return location.latitude, location.longitude
-        return None, None
-    except GeocoderTimedOut:
         return None, None
     except Exception:
         return None, None
