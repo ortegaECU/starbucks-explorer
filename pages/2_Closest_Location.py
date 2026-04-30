@@ -10,9 +10,7 @@ import streamlit as st
 import pydeck as pdk
 import pandas as pd
 import math
-import time
-from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut, GeocoderRateLimited, GeocoderServiceError
+from geopy.geocoders import ArcGIS
 from utils import load_data, apply_sidebar_style, STARBUCKS_GREEN, BACKGROUND_DARK
 
 # -- Page config ---------------------------------------------------------------
@@ -50,7 +48,7 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 def geocode_address(address: str) -> tuple:
     """
     Convert a text address into latitude and longitude.
-    Results are cached so the same address never calls the API twice.
+    Uses ArcGIS geocoder - free, no API key needed.
 
     Parameters
     ----------
@@ -62,13 +60,12 @@ def geocode_address(address: str) -> tuple:
     lon : float or None
     """
     try:
-        time.sleep(1)   # Nominatim requires >= 1 second between requests
-        geolocator = Nominatim(user_agent="sbux_cs230_ortega_unique")
+        geolocator = ArcGIS()
         location   = geolocator.geocode(address, timeout=15)
         if location:
             return location.latitude, location.longitude
         return None, None
-    except (GeocoderTimedOut, GeocoderRateLimited, GeocoderServiceError, Exception):
+    except Exception:
         return None, None
 
 # -- Page header ---------------------------------------------------------------
@@ -85,7 +82,7 @@ ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([3, 1, 2])
 with ctrl_col1:
     user_address = st.text_input(        # #[ST1]
         "Enter your address or city:",
-        placeholder="e.g. Boston, MA, USA",
+        placeholder="e.g. Boston, MA  or  Times Square, New York",
     )
 
 with ctrl_col2:
@@ -118,8 +115,8 @@ if not user_address or not search_btn:
     """)
     col2.markdown("""
     **Example searches:**
-    - `Boston, MA, USA`
-    - `Times Square, New York, USA`
+    - `Boston, MA`
+    - `Times Square, New York`
     - `London, UK`
     - `Tokyo, Japan`
     """)
@@ -130,8 +127,8 @@ else:
 
     if user_lat is None:
         st.error(
-            "Could not find that address. Try adding the country at the end "
-            "(e.g. 'Boston, MA, USA') and click search again."
+            "Could not find that address. Try being more specific "
+            "(e.g. 'Boston, MA' or 'London, UK') and click search again."
         )
     else:
         st.success(f"📍 Location found: {user_lat:.4f}, {user_lon:.4f}")
@@ -214,4 +211,4 @@ else:
                         "Country", "Ownership Type", "Distance (mi)", "Distance (km)"]
         st.dataframe(nearest[display_cols].reset_index(drop=True),
                      use_container_width=True)
-        st.caption("Location data via OpenStreetMap / Nominatim")
+        st.caption("Location data via ArcGIS Geocoding Service")
