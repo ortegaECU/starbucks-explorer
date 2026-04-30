@@ -29,7 +29,7 @@ st.markdown("Select a country and adjust the controls to explore city rankings."
 st.markdown("---")
 
 # ── Controls in main page (moved from sidebar) ────────────────────────────────
-ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4, ctrl_col5 = st.columns([2, 1, 2, 2, 1])
+ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4 = st.columns([2, 1, 2, 1])
 
 with ctrl_col1:
     # #[ST1] - country dropdown
@@ -52,16 +52,6 @@ with ctrl_col2:
     )
 
 with ctrl_col3:
-    # #[ST1] - ownership type multiselect  #[FILTER2]
-    all_ownership = df["Ownership Type"].dropna().unique().tolist()
-    ownership_filter = st.multiselect(
-        "Filter by ownership type:",
-        options=all_ownership,
-        default=all_ownership,
-        help="Uncheck a type to exclude those stores from the ranking",
-    )
-
-with ctrl_col4:
     # #[ST3] - sort order radio
     sort_order = st.radio(
         "Sort order:",
@@ -69,21 +59,13 @@ with ctrl_col4:
         index=0,
     )
 
-with ctrl_col5:
+with ctrl_col4:
     show_table = st.toggle("Show table", value=False)
 
 st.markdown("---")
 
 # -- Filter & process ----------------------------------------------------------
 country_df = filter_by_country(df, selected_country)              # #[FILTER1]
-
-# Filter by ownership type (two conditions: country AND ownership)  #[FILTER2]
-if ownership_filter:
-    country_df = country_df[country_df["Ownership Type"].isin(ownership_filter)]
-
-if country_df.empty:
-    st.warning("No stores match the selected filters. Try selecting at least one ownership type.")
-    st.stop()
 
 # Count stores per city and sort                                   #[SORT]
 city_counts = (
@@ -120,40 +102,7 @@ col3.metric("Total Stores in Country",
 
 st.markdown("---")
 
-# -- Horizontal bar chart ------------------------------------------------------  #[CHART1]
-ascending_chart = sort_order == "Most stores first"
-
-fig = px.bar(
-    top_cities.sort_values("Number of Stores", ascending=ascending_chart),
-    x="Number of Stores",
-    y="City",
-    orientation="h",
-    color="Number of Stores",
-    color_continuous_scale=["#a8d5a2", STARBUCKS_GREEN, BACKGROUND_DARK],
-    text="Number of Stores",
-    title=f"Top {top_n} Cities by Starbucks Count — {selected_country}",
-)
-
-fig.update_traces(
-    texttemplate="%{text:,}",
-    textposition="outside",
-)
-
-fig.update_layout(
-    plot_bgcolor="rgba(0,0,0,0)",
-    paper_bgcolor="rgba(0,0,0,0)",
-    font_color="#333333",
-    title_font_size=18,
-    coloraxis_showscale=False,
-    xaxis_title="Number of Stores",
-    yaxis_title="",
-    height=max(400, top_n * 40),
-    margin=dict(l=10, r=80, t=50, b=30),
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# -- Leaderboard --------------------------------------------------------------  #[CHART2]
+# -- Leaderboard (first) -------------------------------------------------------  #[CHART1]
 st.markdown("### 🏆 City Leaderboard")
 st.markdown("Top cities ranked by number of Starbucks locations.")
 
@@ -216,6 +165,36 @@ for i, (_, row) in enumerate(scatter_df.iterrows(), start=1):
 
 leaderboard_html += "</div>"
 components.html(leaderboard_html, height=top_n * 75, scrolling=False)
+
+# -- Pie chart (second) --------------------------------------------------------  #[CHART2]
+st.markdown("### Share of Stores by City")
+st.markdown(
+    f"What percentage of all Starbucks in **{selected_country}** belong to each city?"
+)
+
+others_count = len(country_df) - top_cities["Number of Stores"].sum()
+pie_df = pd.concat([
+    top_cities[["City", "Number of Stores"]],
+    pd.DataFrame([{"City": "All Others", "Number of Stores": others_count}])
+], ignore_index=True)
+
+fig_pie = px.pie(
+    pie_df,
+    names="City",
+    values="Number of Stores",
+    hole=0.45,
+    title=f"Store Share by City — {selected_country}",
+    color_discrete_sequence=px.colors.sequential.Greens_r + ["#cccccc"],
+)
+fig_pie.update_traces(textinfo="percent+label")
+fig_pie.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    title_font_size=16,
+    showlegend=False,
+    height=480,
+)
+st.plotly_chart(fig_pie, use_container_width=True)
 
 # -- Optional data table -------------------------------------------------------
 if show_table:
