@@ -166,7 +166,7 @@ def apply_sidebar_style():
         }}
         /* Remove top gap in sidebar content */
         [data-testid="stSidebar"] > div:first-child {{
-            padding-top: 1rem !important;
+            padding-top: 0rem !important;
         }}
         /* Sidebar labels and text */
         [data-testid="stSidebar"] label,
