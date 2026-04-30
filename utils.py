@@ -224,10 +224,14 @@ def apply_sidebar_style():
         [data-testid="stAppViewBlockContainer"] h3 {{
             color: {STARBUCKS_GREEN} !important;
         }}
-        /* Metric value styling */
+        /* Metric value */
         [data-testid="stMetricValue"] {{
             color: {STARBUCKS_GREEN} !important;
             font-weight: 700;
+        }}
+        /* Hide Streamlit default black header */
+        [data-testid="stHeader"] {{
+            display: none !important;
         }}
         </style>
         """,
@@ -275,3 +279,27 @@ def apply_sidebar_style():
     st.sidebar.page_link("pages/1_Top_Countries.py",   label="🌍 Top Countries")
     st.sidebar.page_link("pages/2_Closest_Location.py",label="📍 Closest Location")
     st.sidebar.page_link("pages/3_Top_Cities.py",      label="🏙️ Top Cities")
+
+    st.sidebar.markdown(
+        """
+        <div style="
+            position: fixed;
+            bottom: 2rem;
+            width: 220px;
+            background: rgba(0,112,74,0.15);
+            border: 1px solid rgba(0,112,74,0.3);
+            border-radius: 10px;
+            padding: 12px 14px;
+            text-align: center;
+        ">
+            <div style="font-size:1.4rem">☕</div>
+            <div style="color:#CBA258; font-size:0.75rem; font-style:italic; margin-top:4px;">
+                "But first, coffee."
+            </div>
+            <div style="color:#888; font-size:0.65rem; margin-top:6px;">
+                CS230 Final Project
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
