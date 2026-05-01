@@ -168,7 +168,10 @@ def apply_sidebar_style():
         [data-testid="stSidebar"] > div:first-child {{
             padding-top: 0rem !important;
             margin-top: -5rem !important;
-
+        }}
+        /* Show the collapse/expand button */
+        [data-testid="collapsedControl"] {{
+            display: block !important;
         }}
         /* Sidebar labels and text */
         [data-testid="stSidebar"] label,
