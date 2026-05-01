@@ -26,6 +26,7 @@ st.set_page_config(
     page_title = "Starbucks Explorer",
     page_icon  = "☕",
     layout     = "wide",
+    initial_sidebar_state = "expanded",   # sidebar open by default
 )
 
 # ── Apply sidebar style ───────────────────────────────────────────────────────
@@ -34,17 +35,8 @@ apply_sidebar_style()   # #[FUNCCALL2] – also called in every other page
 # ── Load data ─────────────────────────────────────────────────────────────────
 df = load_data()        # #[FUNCCALL2]
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("### 📌 Navigate")
-    st.markdown("""
-    Use the **pages menu** above to explore:
-
-    - 🌍 **Top Countries** — which countries have the most stores?
-    - 🗺️ **By State** — explore stores on a map by state/province
-    - 📍 **Nearest Location** — find the closest Starbucks to you
-    - 🏙️ **Top Cities** — which cities have the most Starbucks?
-    """)
+# ── Sidebar — header only, no Navigate text ───────────────────────────────────
+# (apply_sidebar_style already renders the Starbucks Explorer header + stats)
 
 # ── Hero section ──────────────────────────────────────────────────────────────
 st.markdown(
@@ -55,30 +47,15 @@ st.markdown(
         border-radius: 16px;
         margin-bottom: 2rem;
     ">
-        <h1 style="color: #ffffff; font-size: 3rem; margin-bottom: 0.5rem;">
+        <div style="color: #d4e9d4; font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.2;">
             ☕ Starbucks Explorer
-        </h1>
+        </div>
         <p style="color: #d4e9d4; font-size: 1.2rem; max-width: 650px;">
             Explore <strong style="color:#CBA258">{len(df):,} Starbucks locations</strong>
             across <strong style="color:#CBA258">{df['Country'].nunique()} countries</strong>.
             Discover patterns, compare regions, and find out where the world
             runs on green cups.
         </p>
-        <div style="margin-top: 1.5rem;">
-            <a href="https://www.starbucks.com/menu" target="_blank" style="
-                display: inline-block;
-                padding: 0.6rem 1.6rem;
-                border: 2px solid #d4e9d4;
-                border-radius: 50px;
-                color: #d4e9d4;
-                font-size: 1rem;
-                font-weight: 600;
-                text-decoration: none;
-                letter-spacing: 0.5px;
-            ">
-                Order a coffee ☕
-            </a>
-        </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -95,6 +72,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 def metric_card(col, emoji, value, label):
     """Display a styled metric card. #[FUNC2P] #[FUNCCALL2]"""
+    font_size = "1.2rem" if len(str(value)) > 10 else "1.8rem"
     col.markdown(
         f"""
         <div style="
@@ -103,10 +81,15 @@ def metric_card(col, emoji, value, label):
             padding: 1.2rem 1rem;
             border-radius: 10px;
             text-align: center;
+            height: 130px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         ">
-            <div style="font-size:2rem">{emoji}</div>
-            <div style="color:#ffffff; font-size:1.8rem; font-weight:700">{value}</div>
-            <div style="color:#aaaaaa; font-size:0.85rem">{label}</div>
+            <div style="font-size:2rem; margin-bottom:4px;">{emoji}</div>
+            <div style="color:#ffffff; font-size:{font_size}; font-weight:700; line-height:1.2;">{value}</div>
+            <div style="color:#aaaaaa; font-size:0.85rem; margin-top:4px;">{label}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -115,7 +98,7 @@ def metric_card(col, emoji, value, label):
 metric_card(col1, "🏪", f"{total_stores:,}",    "Total Stores")
 metric_card(col2, "🌍", f"{total_countries}",   "Countries")
 metric_card(col3, "🏙️", f"{total_cities:,}",   "Cities")
-metric_card(col4, "🥇", f"{top_country} ({top_country_n:,})", "Biggest Market")
+metric_card(col4, "🥇", top_country, f"Biggest Market · {top_country_n:,} stores")
 
 # ── What can you explore section ─────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
@@ -151,8 +134,6 @@ with c1:
         "Type any address or city and instantly find the closest Starbucks to you on an interactive map with distances.")
 
 with c2:
-    feature_card(c2, "🗺️", "Explore by State",
-        "Pick a country and a state or province to see every Starbucks plotted on an interactive map — with store name and address on hover.")
     feature_card(c2, "🏙️", "Top Cities",
         "Which city in your chosen country has the most Starbucks? See a ranked chart and spotlight the top location.")
 
