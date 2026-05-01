@@ -49,6 +49,7 @@ country_counts = country_counts.sort_values("Number of Stores", ascending=False)
 
 # Take the top N                                                     #[FILTER1]
 top_df = country_counts.head(top_n).copy()
+top_df["% of World"] = (top_df["Number of Stores"] / len(df) * 100).round(2)
 
 # Max and min in the current selection                               #[MAXMIN]
 max_country = top_df.iloc[0]
@@ -84,13 +85,15 @@ fig = px.bar(
     orientation="h",
     color="Number of Stores",
     color_continuous_scale=["#2d5a27", STARBUCKS_GREEN, "#CBA258"],
-    text="Number of Stores",
+    text="% of World",
+    custom_data=["Number of Stores"],
     title=f"Top {top_n} Countries - Starbucks Store Count",
 )
 
 fig.update_traces(
-    texttemplate="%{text:,}",
+    texttemplate="%{text:.1f}%",
     textposition="outside",
+    hovertemplate="<b>%{y}</b><br>Stores: %{customdata[0]:,}<br>Share: %{text:.2f}% of world<extra></extra>",
 )
 
 fig.update_layout(
