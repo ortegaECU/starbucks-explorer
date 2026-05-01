@@ -56,6 +56,21 @@ st.markdown(
             Discover patterns, compare regions, and find out where the world
             runs on green cups.
         </p>
+        <div style="margin-top: 1.5rem;">
+            <a href="https://www.starbucks.com/menu" target="_blank" style="
+                display: inline-block;
+                padding: 0.6rem 1.6rem;
+                border: 2px solid #d4e9d4;
+                border-radius: 50px;
+                color: #d4e9d4;
+                font-size: 1rem;
+                font-weight: 600;
+                text-decoration: none;
+                letter-spacing: 0.5px;
+            ">
+                Order a coffee ☕
+            </a>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
