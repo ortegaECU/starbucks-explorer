@@ -11,6 +11,7 @@ import pydeck as pdk
 import pandas as pd
 import math
 from geopy.geocoders import ArcGIS
+from geopy.geocoders import Nominatim
 from utils import load_data, apply_sidebar_style, STARBUCKS_GREEN, BACKGROUND_DARK
 
 # -- Page config ---------------------------------------------------------------
@@ -67,6 +68,18 @@ def geocode_address(address: str) -> tuple:
         return None, None
     except Exception:
         return None, None
+
+@st.cache_data(show_spinner=False)
+def lookup_phone(store_name: str, lat: float, lon: float) -> str:
+    """Search OSM for phone number by store coordinates and name."""
+    try:
+        geolocator = Nominatim(user_agent="starbucks_explorer")
+        location = geolocator.reverse((lat, lon), exactly_one=True, timeout=10)
+        if location and "phone" in location.raw.get("extratags", {}):
+            return location.raw["extratags"]["phone"]
+        return "Number not found"
+    except Exception:
+        return "Number not found"
 
 # -- Page header ---------------------------------------------------------------
 st.markdown("# 📍 Find Your Nearest Starbucks")
@@ -207,8 +220,12 @@ else:
 
         # -- Results table -------------------------------------------------
         st.markdown("### Results")
+        with st.spinner("Looking up phone numbers..."):
+            nearest["Phone"] = nearest.apply(
+                lambda r: lookup_phone(r["Store Name"], r["Latitude"], r["Longitude"]), axis=1
+            )
         display_cols = ["Store Name", "Street Address", "City",
-                        "Country", "Ownership Type", "Distance (mi)", "Distance (km)"]
+                        "Country", "Ownership Type", "Distance (mi)", "Distance (km)", "Phone"]
         st.dataframe(nearest[display_cols].reset_index(drop=True),
                      use_container_width=True)
         st.caption("Location data via ArcGIS Geocoding Service")
