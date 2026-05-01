@@ -167,7 +167,7 @@ def apply_sidebar_style():
         /* Remove top gap in sidebar content */
         [data-testid="stSidebar"] > div:first-child {{
             padding-top: 0rem !important;
-            margin-top: -4rem !important;
+            margin-top: -3.5rem !important;
         }}
         /* Show the collapse/expand button */
         [data-testid="collapsedControl"] {{
