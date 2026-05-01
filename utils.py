@@ -173,6 +173,12 @@ def apply_sidebar_style():
         [data-testid="collapsedControl"] {{
             display: block !important;
         }}
+        button[kind="header"] {{
+            display: block !important;
+        }}
+        [data-testid="stSidebarCollapseButton"] {{
+            display: block !important;
+        }}
         /* Sidebar labels and text */
         [data-testid="stSidebar"] label,
         [data-testid="stSidebar"] .stMarkdown,
